@@ -1,22 +1,36 @@
 language: node_js
 
 node_js:
-  - '4.2.1'
-
-before_install: if [[ `npm -v` != 3* ]]; then npm i -g npm@3; fi
+  - 'lts/*'
 
 cache:
   directories:
-    - node_modules
+    - '$HOME/.npm'
 
 env:
-  - CXX=g++-4.8
+  global:
+    - NO_UPDATE_NOTIFIER=1
+    - NODE_NO_WARNINGS=1
+    - FREECODECAMP_NODE_ENV=production
+    - API_LOCATION="http://localhost:3000"
+    - FORUM_PROXY="https://forum.localhost"
+    - NEWS_PROXY="https://news.localhost"
+    
 
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-4.8
+before_install:
+  - npm config set loglevel warn
 
-sudo: false
+install: npm ci
+
+before_script:
+  - npm run ensure-env
+
+jobs:
+  include:
+    - stage: Lint javaScript
+      script:
+        - npm run lint
+
+    - stage: Unit and Integration tests
+      script: npm test
+
